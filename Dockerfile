@@ -10,13 +10,22 @@
 FROM cloud9/workspace
 #FROM ubuntu14.04
 #FROM debian:wheezy
-MAINTAINER Maarten Huijsmans <maarten.huijsmans@gmail.com>
+#MAINTAINER Maarten Huijsmans <maarten.huijsmans@gmail.com>
+
+
+MAINTAINER Jeremy Ellis <keyfreemusic@gmail.com>
+
+ADD ./files/workspace /home/ubuntu/workspace
+
+RUN chmod -R g+w /home/ubuntu/workspace && \
+    chown -R ubuntu:ubuntu /home/ubuntu/workspace
+    
 
 
 # Update, upgrade and install packages
 RUN \
     apt-get update && \
-    apt-get -y install curl unzip python-software-properties software-properties-common lib32stdc++6 lib32z1
+    apt-get -y install lib32stdc++6 lib32z1
     
 
 
@@ -56,6 +65,9 @@ RUN cd /usr/local && \
     curl -L https://services.gradle.org/distributions/gradle-2.5-bin.zip -o gradle-2.5-bin.zip && \
     unzip gradle-2.5-bin.zip
 
+# Set PATH so the following commands can work
+ENV ANDROID_HOME=/usr/local/android-sdk-linux ANDROID_NDK_HOME=/usr/local/android-ndk-r10e JAVA_HOME=/usr/lib/jvm/java-7-oracle GRADLE_HOME=/usr/local/gradle-2.5
+ENV PATH $PATH:$ANDROID_HOME/tools:$ANDROID_NDK_HOME/platform-tools:$ANDROID_NDK_HOME:$GRADLE_HOME/bin
 
 # Update & Install Android Tools
 # Cloud message, billing, licensing, play services, admob, analytics
@@ -67,9 +79,6 @@ RUN \
     echo y | /usr/local/android-sdk-linux/tools/android update sdk --filter android-23 --no-ui --force -a
 
 
-# Set PATH
-ENV ANDROID_HOME=/usr/local/android-sdk-linux ANDROID_NDK_HOME=/usr/local/android-ndk-r10e JAVA_HOME=/usr/lib/jvm/java-7-oracle GRADLE_HOME=/usr/local/gradle-2.5
-ENV PATH $PATH:$ANDROID_HOME/tools:$ANDROID_NDK_HOME/platform-tools:$ANDROID_NDK_HOME:$GRADLE_HOME/bin
 
 
 # Flatten the image
@@ -93,3 +102,13 @@ VOLUME ["/data/app"]
 
 # Define default command
 CMD ["bash"]
+
+#paths set to auto load in the cloud 9 environment
+
+#printf "\n\nexport ANDROID_SDK_HOME=/home/ubuntu/workspace/android-sdk-linux\nexport PATH=\$PATH:\$ANDROID_SDK_HOME/tools\nexport PATH=\$PATH:\$ANDROID_SDK_HOME/platform-tools"  >> ~/.profile
+
+printf "\n\nexport ANDROID_SDK_HOME=/usr/local/android-sdk-linux\nexport PATH=\$PATH:\$ANDROID_SDK_HOME/tools\nexport PATH=\$PATH:\$ANDROID_SDK_HOME/platform-tools"  >> ~/.profile
+
+#must still add gradle
+#GRADLE_HOME=/usr/local/gradle-2.5
+
