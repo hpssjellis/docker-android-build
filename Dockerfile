@@ -59,10 +59,9 @@ RUN cd /usr/local && \
 RUN \
     echo y | /usr/local/android-sdk-linux/tools/android update sdk --filter tools --no-ui --force -a && \
     echo y | /usr/local/android-sdk-linux/tools/android update sdk --filter platform-tools --no-ui --force -a && \
-    echo y | /usr/local/android-sdk-linux/tools/android update sdk --filter android-19 --no-ui --force -a && \
-    echo y | /usr/local/android-sdk-linux/tools/android update sdk --filter android-21 --no-ui --force -a && \
+    echo y | /usr/local/android-sdk-linux/tools/android update sdk --filter android-20 --no-ui --force -a && \
     echo y | /usr/local/android-sdk-linux/tools/android update sdk --filter android-22 --no-ui --force -a && \
-    echo y | /usr/local/android-sdk-linux/tools/android update sdk --filter extra --no-ui --force -a
+    echo y | /usr/local/android-sdk-linux/tools/android update sdk --filter android-23 --no-ui --force -a
 
 
 # Set PATH
