@@ -8,6 +8,7 @@
 
 # Pull base image.
 FROM cloud9/workspace
+#FROM ubuntu14.04
 #FROM debian:wheezy
 MAINTAINER Maarten Huijsmans <maarten.huijsmans@gmail.com>
 
