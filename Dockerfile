@@ -15,7 +15,9 @@ MAINTAINER Maarten Huijsmans <maarten.huijsmans@gmail.com>
 # Update, upgrade and install packages
 RUN \
     apt-get update && \
-    apt-get -y install curl unzip python-software-properties software-properties-common
+    apt-get -y install curl unzip python-software-properties software-properties-common lib32stdc++6 lib32z1
+    
+
 
 
 # Install Oracle Java JDK
