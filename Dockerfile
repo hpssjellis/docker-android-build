@@ -1,0 +1,113 @@
+#
+# Android Build Dockerfile
+#
+# https://github.com/lukin0110/docker-android-build
+#
+# Version: 0.0.1
+#
+
+# Pull base image.
+FROM cloud9/workspace
+#FROM ubuntu14.04
+#FROM debian:wheezy
+#MAINTAINER Maarten Huijsmans <maarten.huijsmans@gmail.com>
+
+
+MAINTAINER Jeremy Ellis <keyfreemusic@gmail.com>
+
+ADD ./files/workspace /home/ubuntu/workspace
+
+RUN chmod -R g+w /home/ubuntu/workspace && \
+    chown -R ubuntu:ubuntu /home/ubuntu/workspace
+    
+
+
+# Update, upgrade and install packages
+RUN \
+    apt-get update && \
+    apt-get -y install lib32stdc++6 lib32z1 curl unzip python-software-properties software-properties-common
+    
+
+
+
+# Install Oracle Java JDK
+# https://www.digitalocean.com/community/tutorials/how-to-install-java-on-ubuntu-with-apt-get
+# https://github.com/dockerfile/java/blob/master/oracle-java7/Dockerfile
+#RUN \
+#    echo oracle-java7-installer shared/accepted-oracle-license-v1-1 select true | debconf-set-selections && \
+#    add-apt-repository -y ppa:webupd8team/java && \
+#    apt-get update && \
+#    apt-get install -y oracle-java7-installer
+
+
+# Install Android SDK
+# https://developer.android.com/sdk/index.html#Other
+RUN \
+    cd /home/ubuntu/workspace/ && \
+    curl -L -O http://dl.google.com/android/android-sdk_r24.3.3-linux.tgz && \
+    tar xf android-sdk_r24.3.3-linux.tgz && \
+    rm android-sdk_r24.3.3-linux.tgz
+
+
+# Install Android NDK
+# https://developer.android.com/tools/sdk/ndk/index.html
+# https://developer.android.com/ndk/index.html
+RUN \
+    cd /home/ubuntu/workspace/ && \
+    curl -L -O http://dl.google.com/android/ndk/android-ndk-r10e-linux-x86_64.bin && \
+    chmod a+x android-ndk-r10e-linux-x86_64.bin && \
+    ./android-ndk-r10e-linux-x86_64.bin && \
+    rm -f android-ndk-r10e-linux-x86_64.bin
+
+
+# Install Gradle
+RUN cd /usr/local && \
+    curl -L https://services.gradle.org/distributions/gradle-2.5-bin.zip -o gradle-2.5-bin.zip && \
+    unzip gradle-2.5-bin.zip
+
+# Set PATH so the following commands can work
+ENV ANDROID_HOME=/home/ubuntu/workspace/android-sdk-linux ANDROID_NDK_HOME=/home/ubuntu/workspace/android-ndk-r10e  GRADLE_HOME=/home/ubuntu/workspace/gradle-2.5
+ENV PATH $PATH:$ANDROID_SDK_HOME:$ANDROID_SDK_HOME/tools:$ANDROID_SDK_HOME/platform-tools:$ANDROID_NDK_HOME:$GRADLE_HOME/bin
+
+# Update & Install Android Tools
+
+RUN \
+    echo y | /usr/local/android-sdk-linux/tools/android update sdk --filter tools --no-ui --force -a && \
+    echo y | /usr/local/android-sdk-linux/tools/android update sdk --filter platform-tools --no-ui --force -a && \
+    echo y | /usr/local/android-sdk-linux/tools/android update sdk --filter android-20 --no-ui --force -a && \
+    echo y | /usr/local/android-sdk-linux/tools/android update sdk --filter android-22 --no-ui --force -a && \
+    echo y | /usr/local/android-sdk-linux/tools/android update sdk --filter android-23 --no-ui --force -a
+
+
+
+
+# Flatten the image
+# https://intercityup.com/blog/downsizing-docker-containers.html
+# Cleaning APT
+RUN \
+    apt-get remove -y curl unzip python-software-properties software-properties-common && \
+    apt-get clean autoclean && \
+    apt-get autoremove -y && \
+    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* 
+
+#$ rm -rf /var/lib/{apt,dpkg,cache,log}/
+
+# Define working directory.
+RUN mkdir -p /data/app
+WORKDIR /home/ubuntu/workspace
+
+# Define volume: your local app code directory can be mounted here
+# Mount with: -v /your/local/directory:/data/app
+VOLUME ["/home/ubuntu/workspace"]
+
+# Define default command
+CMD ["bash"]
+
+#paths set to auto load in the cloud 9 environment
+
+printf "\n\nexport ANDROID_SDK_HOME=/home/ubuntu/workspace/android-sdk-linux\nexport PATH=\$PATH:\$ANDROID_SDK_HOME/tools\nexport PATH=\$PATH:\$ANDROID_SDK_HOME/platform-tools"  >> ~/.profile
+
+#printf "\n\nexport ANDROID_SDK_HOME=/usr/local/android-sdk-linux\nexport PATH=\$PATH:\$ANDROID_SDK_HOME/tools\nexport PATH=\$PATH:\$ANDROID_SDK_HOME/platform-tools"  >> /etc/profile.d/android.sh
+
+#must still add gradle and NDK
+#GRADLE_HOME=/usr/local/gradle-2.5
